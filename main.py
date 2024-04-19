@@ -2,7 +2,6 @@ import telebot
 from telebot import types
 
 bot = telebot.TeleBot('7032417900:AAFnXx--IFE8Nb71hiefFj4HCimo5QwuSVo')
-a = ['год', 'Год', 'месяц', 'Месяц', 'Полгода', 'полгода']
 
 
 @bot.message_handler(commands=['start'])
@@ -12,7 +11,7 @@ def start(m):
     btn2 = (types.KeyboardButton('/help'))
     btn3 = (types.KeyboardButton('привет'))
     btn4 = (types.KeyboardButton('id'))
-    btn5 = (types.KeyboardButton('Написать планы на день'))
+    btn5 = (types.KeyboardButton('Планы'))
     btn6 = (types.KeyboardButton('Написать цели'))
     btn7 = (types.KeyboardButton('Поставить напоминание'))
     btn8 = (types.KeyboardButton('Изменить цели'))
@@ -36,17 +35,21 @@ def info(message):
     elif message.text == 'id':
         bot.reply_to(message, f'ID: {message.from_user.id}')
     elif message.text == 'Написать цели':
-        bot.send_message(message.from_user.id, 'На какой срок вы ставите цели?год, полгода, месяц')
-    if message.text in a:
-        target_date = message.text
-        bot.send_message(message.from_user.id, 'Напишите цели')
-    elif message.text == 'Написать планы на день':
         keyboard = types.InlineKeyboardMarkup()
-        key_yes = types.InlineKeyboardButton(text='Да', callback_data='otvet')
+        key_year = types.InlineKeyboardButton(text='Год', callback_data='otvet')
+        keyboard.add(key_year)
+        key_sixmonths = types.InlineKeyboardButton(text='Полгода', callback_data='otvet')
+        keyboard.add(key_sixmonths)
+        key_month = types.InlineKeyboardButton(text='Месяц', callback_data='otvet')
+        keyboard.add(key_month)
+        bot.send_message(message.from_user.id, 'На какой срок вы ставите цели?', reply_markup=keyboard)
+    elif message.text == 'Планы':
+        keyboard = types.InlineKeyboardMarkup()
+        key_yes = types.InlineKeyboardButton(text='...', callback_data='otvet1')
         keyboard.add(key_yes)
-        key_no = types.InlineKeyboardButton(text='Нет', callback_data='otvet')
+        key_no = types.InlineKeyboardButton(text='...', callback_data='otvet2')
         keyboard.add(key_no)
-        bot.send_message(message.from_user.id, 'Нужны ли вам напоминания для выполнения планов?', reply_markup=keyboard)
+        bot.send_message(message.from_user.id, 'Выберите нужный день', reply_markup=keyboard)
 
 
 bot.polling(none_stop=True, interval=0)
