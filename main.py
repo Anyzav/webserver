@@ -1,5 +1,13 @@
 import telebot
+import datetime
 from telebot import types
+from datetime import date
+
+current_date = date.today()
+current_date1 = str(current_date)
+current_date3 = str(current_date + datetime.timedelta(days=2))
+current_date2 = str(current_date + datetime.timedelta(days=1))
+
 
 bot = telebot.TeleBot('7032417900:AAFnXx--IFE8Nb71hiefFj4HCimo5QwuSVo')
 
@@ -45,11 +53,13 @@ def info(message):
         bot.send_message(message.from_user.id, 'На какой срок вы ставите цели?', reply_markup=keyboard)
     elif message.text == 'Планы':
         keyboard = types.InlineKeyboardMarkup()
-        key_yes = types.InlineKeyboardButton(text='...', callback_data='otvet1')
-        keyboard.add(key_yes)
-        key_no = types.InlineKeyboardButton(text='...', callback_data='otvet2')
-        keyboard.add(key_no)
+        key_d1 = types.InlineKeyboardButton(text=current_date1, callback_data='otvet1')
+        keyboard.add(key_d1)
+        key_d2 = types.InlineKeyboardButton(text=current_date2, callback_data='otvet2')
+        keyboard.add(key_d2)
+        key_d3 = types.InlineKeyboardButton(text=current_date3, callback_data='otvet3')
+        keyboard.add(key_d3)
         bot.send_message(message.from_user.id, 'Выберите нужный день', reply_markup=keyboard)
 
 
-bot.polling(none_stop=True, interval=0)
+bot.polling()
