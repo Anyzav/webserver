@@ -62,4 +62,15 @@ def info(message):
         bot.send_message(message.from_user.id, 'Выберите нужный день', reply_markup=keyboard)
 
 
+@bot.callback_query_handler(func=lambda call: call.data in ['otvet1', 'otvet2', 'otvet3'])
+def date_clicked(call):
+    if call.data == 'otvet1':
+        data = current_date1
+    elif call.data == 'otvet2':
+        data = current_date2
+    elif call.data == 'otvet3':
+        data = current_date3
+    print(data)
+
+
 bot.polling()
