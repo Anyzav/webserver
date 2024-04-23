@@ -2,6 +2,7 @@ import telebot
 import datetime
 from telebot import types
 from datetime import date
+import sqlite3
 
 current_date = date.today()
 current_date1 = str(current_date)
@@ -14,6 +15,8 @@ bot = telebot.TeleBot('7032417900:AAFnXx--IFE8Nb71hiefFj4HCimo5QwuSVo')
 
 @bot.message_handler(commands=['start'])
 def start(m):
+    conn = sqlite3.connect('itproger.sql')
+    cur = conn.cursor()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = (types.KeyboardButton('/start'))
     btn2 = (types.KeyboardButton('/help'))
@@ -26,10 +29,21 @@ def start(m):
     markup.add(btn1, btn5)
     markup.add(btn6, btn7, btn8)
     markup.add(btn3, btn2, btn4)
-    bot.send_message(m.chat.id, f'Привет, {m.from_user.first_name}. Рады тебя тут видеть. Чат-бот будет предоставлять'
-                                      f' пользователям возможность создавать планы на день, устанавливать'
-                                      f' напоминания. Надеемся тебе понравиться наш сервис! Чтобы продолжть работу'
-                                      f' выберите один из предложенных вариантов команд в нижней панели', reply_markup=markup)
+    # bot.send_message(m.chat.id, f'Привет, {m.from_user.first_name}. Рады тебя тут видеть. Чат-бот будет предоставлять'
+    #                                   f' пользователям возможность создавать планы на день, устанавливать'
+    #                                   f' напоминания. Надеемся тебе понравиться наш сервис! Чтобы продолжть работу'
+    #                                   f' выберите один из предложенных вариантов команд в нижней панели', reply_markup=markup)
+    cur.execute('CREATE TABLE IF NOT EXIST users (id, int audio_increment primary key, namevarchar(50), pass varchar(50)')
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    bot.send_message(m.chat.id, 'Привет, сейчас тебя заригестрируем! Введите ваше имя:')
+    bot.register_next_step_handler(m, user_name)
+
+
+def user_name(m):
+    pass
 
 @bot.message_handler(commands=['help'])
 def main(message):
