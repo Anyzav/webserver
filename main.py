@@ -12,11 +12,8 @@ current_date2 = str(current_date + datetime.timedelta(days=1))
 
 bot = telebot.TeleBot('7032417900:AAFnXx--IFE8Nb71hiefFj4HCimo5QwuSVo')
 
-
 @bot.message_handler(commands=['start'])
 def start(m):
-    conn = sqlite3.connect('itproger.sql')
-    cur = conn.cursor()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = (types.KeyboardButton('/start'))
     btn2 = (types.KeyboardButton('/help'))
@@ -29,21 +26,45 @@ def start(m):
     markup.add(btn1, btn5)
     markup.add(btn6, btn7, btn8)
     markup.add(btn3, btn2, btn4)
-    # bot.send_message(m.chat.id, f'Привет, {m.from_user.first_name}. Рады тебя тут видеть. Чат-бот будет предоставлять'
-    #                                   f' пользователям возможность создавать планы на день, устанавливать'
-    #                                   f' напоминания. Надеемся тебе понравиться наш сервис! Чтобы продолжть работу'
-    #                                   f' выберите один из предложенных вариантов команд в нижней панели', reply_markup=markup)
-    cur.execute('CREATE TABLE IF NOT EXIST users (id, int audio_increment primary key, namevarchar(50), pass varchar(50)')
-    conn.commit()
-    cur.close()
-    conn.close()
+    bot.send_message(m.chat.id, f'Привет, {m.from_user.first_name}. Рады тебя тут видеть. Чат-бот будет предоставлять'
+                                       f' пользователям возможность создавать планы на день, устанавливать'
+                                       f' напоминания. Надеемся тебе понравиться наш сервис! Чтобы продолжть работу'
+                                       f' выберите один из предложенных вариантов команд в нижней панели', reply_markup=markup)
+    bot.send_message(m.chat.id, 'Введите логин')
+    bot.register_next_step_handler(m, user_pass)
 
-    bot.send_message(m.chat.id, 'Привет, сейчас тебя заригестрируем! Введите ваше имя:')
-    bot.register_next_step_handler(m, user_name)
+def user_pass(m):
+    password = m.text.strip()
+    insert_varible_into_table(1, 'password', '2020-11-19', 'ghb')
+
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton('Список', callback_data='users'))
+    bot.send_message(m.chat.id, 'Пользователь зарегестрирован!', reply_markup=markup)
+
+def insert_varible_into_table(idt, name, date, call):
+    try:
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        print("Подключен к SQLite")
+
+        sqlite_insert_query = """INSERT INTO web
+                                             (id, login, data, call)
+                                             VALUES (idt, name, date, call);"""
+
+        cursor.execute(sqlite_insert_query)
+        sqlite_connection.commit()
+        print("Переменные Python успешно вставлены в таблицу sqlitedb_developers")
+
+        cursor.close()
+
+    except sqlite3.Error as error:
+        print("Ошибка при работе с SQLite", error)
+    finally:
+        if sqlite_connection:
+            sqlite_connection.close()
+            print("Соединение с SQLite закрыто")
 
 
-def user_name(m):
-    pass
 
 @bot.message_handler(commands=['help'])
 def main(message):
