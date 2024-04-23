@@ -41,6 +41,20 @@ def user_pass(m):
     markup.add(types.InlineKeyboardButton('Список', callback_data='users'))
     bot.send_message(m.chat.id, 'Пользователь зарегестрирован!', reply_markup=markup)
 
+@bot.message_handler(func=lambda call: True)
+def callback(call):
+    conn = sqlite3.connect('web.sql')
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM web')
+    users = cur.fetchall()
+    info = ''
+    for i in users:
+        info+= f'Имя: {i[1]}, {i[2]}\n'
+    cur.close()
+    conn.close()
+
+    bot.send_message(call.m.chat.id, info)
+
 def insert_varible_into_table(id, name, date, call):
     try:
         sqlite_connection = sqlite3.connect('web.sql')
