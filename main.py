@@ -49,7 +49,7 @@ def callback(call):
     users = cur.fetchall()
     info = ''
     for i in users:
-        info+= f'Имя: {i[1]}, {i[2]}\n'
+        info += f'Имя: {i[1]}, {i[2]}\n'
     cur.close()
     conn.close()
 
@@ -61,11 +61,9 @@ def insert_varible_into_table(id, name, date, call):
         cursor = sqlite_connection.cursor()
         print("Подключен к SQLite")
 
-        sqlite_insert_query = """INSERT INTO web
+        cursor.execute("""INSERT INTO web
                                              (id, login, data, call)
-                                             VALUES (id, name, date, call);"""
-
-        cursor.execute(sqlite_insert_query)
+                                             VALUES (?, ?, ?, ?)""", (id, name, date, call))
         sqlite_connection.commit()
         print("Переменные Python успешно вставлены в таблицу sqlitedb_developers")
 
