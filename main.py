@@ -104,10 +104,13 @@ def info(message):
 def date_clicked(call):
     if call.data == 'otvet1':
         data = current_date1
+        bot.delete_message(call.message.chat.id, call.message.message_id)
     elif call.data == 'otvet2':
         data = current_date2
+        bot.delete_message(call.message.chat.id, call.message.message_id)
     elif call.data == 'otvet3':
         data = current_date3
+        bot.delete_message(call.message.chat.id, call.message.message_id)
     print(data)
 
 
