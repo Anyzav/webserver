@@ -39,21 +39,9 @@ def user_pass(m):
 
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Список', callback_data='users'))
-    bot.send_message(m.chat.id, 'Пользователь зарегестрирован!', reply_markup=markup)
 
-@bot.message_handler(func=lambda call: True)
-def callback(call):
-    conn = sqlite3.connect('web.sql')
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM web')
-    users = cur.fetchall()
-    info = ''
-    for i in users:
-        info += f'Имя: {i[1]}, {i[2]}\n'
-    cur.close()
-    conn.close()
+    bot.send_message(m.chat.id, 'Пользователь зарегестрирован!')
 
-    bot.send_message(call.m.chat.id, info)
 
 def insert_varible_into_table(id, name, date, call):
     try:
@@ -64,6 +52,9 @@ def insert_varible_into_table(id, name, date, call):
         cursor.execute("""INSERT INTO web
                                              (id, login, data, call)
                                              VALUES (?, ?, ?, ?)""", (id, name, date, call))
+        rec = cursor.fetchall()
+        for i in rec:
+            print(i)
         sqlite_connection.commit()
         print("Переменные Python успешно вставлены в таблицу sqlitedb_developers")
 
