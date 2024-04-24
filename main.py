@@ -35,23 +35,23 @@ def start(m):
 
 def user_pass(m):
     password = m.text.strip()
-    insert_varible_into_table(1, password, '2020-11-19', 'ghb')
+    insert_varible_into_table(password, '2020-11-19', 'ghb')
 
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Список', callback_data='users'))
 
-    bot.send_message(m.chat.id, 'Пользователь зарегестрирован!')
+    bot.send_message(m.chat.id, 'Пользователь зарегестрирован! Теперь вы можете написать планы/цели')
 
 
-def insert_varible_into_table(id, name, date, call):
+def insert_varible_into_table(name, date, call):
     try:
         sqlite_connection = sqlite3.connect('web.sql')
         cursor = sqlite_connection.cursor()
         print("Подключен к SQLite")
 
-        cursor.execute("""INSERT INTO web
-                                             (id, login, data, call)
-                                             VALUES (?, ?, ?, ?)""", (id, name, date, call))
+        cursor.execute("""INSERT INTO plans
+                                             (name, data, text)
+                                             VALUES (?, ?, ?)""", (name, date, call))
         rec = cursor.fetchall()
         for i in rec:
             print(i)
