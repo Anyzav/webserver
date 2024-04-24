@@ -35,19 +35,18 @@ def start(m):
 
 def user_pass(m):
     password = m.text.strip()
-    insert_varible_into_table(password, '2020-11-19', 'ghb')
+    insert_varible_into_table(password, '00', 'ghb', m)
 
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Список', callback_data='users'))
 
-    bot.send_message(m.chat.id, 'Пользователь зарегестрирован! Теперь вы можете написать планы/цели')
 
-
-def insert_varible_into_table(name, date, call):
+def insert_varible_into_table(name, date, call, m):
     try:
         sqlite_connection = sqlite3.connect('web.sql')
         cursor = sqlite_connection.cursor()
         print("Подключен к SQLite")
+
 
         cursor.execute("""INSERT INTO plans
                                              (name, data, text)
@@ -57,11 +56,14 @@ def insert_varible_into_table(name, date, call):
             print(i)
         sqlite_connection.commit()
         print("Переменные Python успешно вставлены в таблицу sqlitedb_developers")
+        bot.send_message(m.chat.id, 'Пользователь зарегестрирован! Теперь вы можете написать планы/цели')
+
 
         cursor.close()
 
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite", error)
+        bot.send_message(m.chat.id, 'Этот пользователь уже до этого пользовался ботом. Продолжайте работу')
     finally:
         if sqlite_connection:
             sqlite_connection.close()
