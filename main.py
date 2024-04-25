@@ -329,5 +329,4 @@ def date_clicked(call):
         sqlite_connection.commit()
         cursor.close()
 
-
 bot.polling()
