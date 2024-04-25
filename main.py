@@ -4,6 +4,7 @@ from telebot import types
 from datetime import date
 import sqlite3
 
+
 current_date = date.today()
 current_date1 = str(current_date)
 current_date3 = str(current_date + datetime.timedelta(days=2))
