@@ -21,8 +21,8 @@ def start(m):
     btn4 = (types.KeyboardButton('id'))
     btn5 = (types.KeyboardButton('Планы'))
     btn6 = (types.KeyboardButton('Написать цели'))
-    btn7 = (types.KeyboardButton('Поставить напоминание'))
-    btn8 = (types.KeyboardButton('Изменить цели'))
+    btn7 = (types.KeyboardButton('Вывести цели'))
+    btn8 = (types.KeyboardButton('Удалить цели'))
     markup.add(btn1, btn5)
     markup.add(btn6, btn7, btn8)
     markup.add(btn3, btn2, btn4)
@@ -30,8 +30,6 @@ def start(m):
                                        f' пользователям возможность создавать планы на день, устанавливать'
                                        f' напоминания. Надеемся тебе понравиться наш сервис! Чтобы продолжть работу'
                                        f' выберите один из предложенных вариантов команд в нижней панели', reply_markup=markup)
-    bot.send_message(m.chat.id, 'Введите логин')
-    bot.register_next_step_handler(m, user_pass)
 
 
 def user_pass(m):
@@ -172,6 +170,22 @@ def info(message):
         key_d3 = types.InlineKeyboardButton(text=current_date3, callback_data='otvet3')
         keyboard.add(key_d3)
         bot.send_message(message.from_user.id, 'Выберите нужный день', reply_markup=keyboard)
+    elif message.text == 'Удалить цели':
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        cursor.execute("""DELETE from web1""")
+        sqlite_connection.commit()
+        cursor.close()
+        bot.send_message(message.chat.id, 'Цели удалены. Можете писать новые.')
+    elif message.text == 'Вывести цели':
+        keyboard = types.InlineKeyboardMarkup()
+        key_dd1 = types.InlineKeyboardButton(text='Год', callback_data='year1')
+        keyboard.add(key_dd1)
+        key_dd2 = types.InlineKeyboardButton(text="Полгода", callback_data='six_months1')
+        keyboard.add(key_dd2)
+        key_dd3 = types.InlineKeyboardButton(text="Месяц", callback_data='month1')
+        keyboard.add(key_dd3)
+        bot.send_message(message.from_user.id, 'Выберите срок, для которого нужно вывести цель', reply_markup=keyboard)
 
 
 @bot.callback_query_handler(func=lambda call: call.data in ['otvet1', 'otvet2', 'otvet3'])
@@ -195,19 +209,57 @@ def date_clicked(call):
 @bot.callback_query_handler(func=lambda call: call.data in ['year', 'six_months', 'month'])
 def date_clicked(call):
     if call.data == 'year':
-        data = current_date1
         bot.delete_message(call.message.chat.id, call.message.message_id)
         bot.send_message(call.message.chat.id,'Введите цель:')
         bot.register_next_step_handler(call.message, user_purpose)
     elif call.data == 'six_months':
-        data = current_date2
         bot.delete_message(call.message.chat.id, call.message.message_id)
         bot.send_message(call.message.chat.id, 'Введите цель:')
         bot.register_next_step_handler(call.message, user_purpose1)
     elif call.data == 'month':
-        data = current_date3
         bot.delete_message(call.message.chat.id, call.message.message_id)
         bot.send_message(call.message.chat.id, 'Введите цель:')
         bot.register_next_step_handler(call.message, user_purpose2)
+
+
+@bot.callback_query_handler(func=lambda call: call.data in ['year1', 'six_months1', 'month1'])
+def date_clicked(call):
+    if call.data == 'year1':
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        cursor.execute("""SELECT year FROM web1
+                            WHERE year IS NOT NULL""")
+        results = cursor.fetchall()
+        print(results)
+        for i in results:
+            bot.send_message(call.message.chat.id, i[0])
+        sqlite_connection.commit()
+        cursor.close()
+    elif call.data == 'six_months1':
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        cursor.execute("""SELECT six_months FROM web1
+                                    WHERE six_months IS NOT NULL""")
+        results = cursor.fetchall()
+        print(results)
+        for i in results:
+            bot.send_message(call.message.chat.id, i[0])
+        sqlite_connection.commit()
+        cursor.close()
+    elif call.data == 'month1':
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        cursor.execute("""SELECT month FROM web1
+                        WHERE month IS NOT NULL""")
+        results = cursor.fetchall()
+        print(results)
+        for i in results:
+            bot.send_message(call.message.chat.id, i[0])
+        sqlite_connection.commit()
+        cursor.close()
+
 
 bot.polling()
