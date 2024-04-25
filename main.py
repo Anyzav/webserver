@@ -9,7 +9,6 @@ current_date1 = str(current_date)
 current_date3 = str(current_date + datetime.timedelta(days=2))
 current_date2 = str(current_date + datetime.timedelta(days=1))
 
-
 bot = telebot.TeleBot('7032417900:AAFnXx--IFE8Nb71hiefFj4HCimo5QwuSVo')
 
 @bot.message_handler(commands=['start'])
@@ -19,13 +18,16 @@ def start(m):
     btn2 = (types.KeyboardButton('/help'))
     btn3 = (types.KeyboardButton('привет'))
     btn4 = (types.KeyboardButton('id'))
-    btn5 = (types.KeyboardButton('Планы'))
+    btn5 = (types.KeyboardButton('Написать планы'))
     btn6 = (types.KeyboardButton('Написать цели'))
     btn7 = (types.KeyboardButton('Вывести цели'))
     btn8 = (types.KeyboardButton('Удалить цели'))
-    markup.add(btn1, btn5)
+    btn9 = (types.KeyboardButton('Удалить планы'))
+    btn10 = (types.KeyboardButton('Вывести планы'))
+    markup.add(btn1)
+    markup.add(btn2, btn3, btn4)
     markup.add(btn6, btn7, btn8)
-    markup.add(btn3, btn2, btn4)
+    markup.add(btn5, btn9, btn10)
     bot.send_message(m.chat.id, f'Привет, {m.from_user.first_name}. Рады тебя тут видеть. Чат-бот будет предоставлять'
                                        f' пользователям возможность создавать планы на день, устанавливать'
                                        f' напоминания. Надеемся тебе понравиться наш сервис! Чтобы продолжть работу'
@@ -37,30 +39,36 @@ def user_pass(m):
     insert_varible_into_table(password)
     bot.send_message(m.chat.id, 'Готово!')
 
+
 def user_pass1(m):
     password = m.text.strip()
     insert_varible_into_table_1(password)
     bot.send_message(m.chat.id, 'Готово!')
+
 
 def user_pass2(m):
     password = m.text.strip()
     insert_varible_into_table_2(password)
     bot.send_message(m.chat.id, 'Готово!')
 
+
 def user_purpose(m):
     purpose = m.text.strip()
     insert_varible_into_table2(purpose)
     bot.send_message(m.chat.id, 'Готово!')
+
 
 def user_purpose1(m):
     purpose = m.text.strip()
     insert_varible_into_table3(purpose)
     bot.send_message(m.chat.id, 'Готово!')
 
+
 def user_purpose2(m):
     purpose = m.text.strip()
     insert_varible_into_table4(purpose)
     bot.send_message(m.chat.id, 'Готово!')
+
 
 def insert_varible_into_table(name):
     try:
@@ -75,6 +83,7 @@ def insert_varible_into_table(name):
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite", error)
 
+
 def insert_varible_into_table_1(name):
     try:
         sqlite_connection = sqlite3.connect('web.sql')
@@ -87,6 +96,7 @@ def insert_varible_into_table_1(name):
 
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite", error)
+
 
 def insert_varible_into_table_2(name):
     try:
@@ -115,6 +125,7 @@ def insert_varible_into_table2(name):
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite", error)
 
+
 def insert_varible_into_table3(name):
     try:
         sqlite_connection = sqlite3.connect('web.sql')
@@ -127,6 +138,7 @@ def insert_varible_into_table3(name):
 
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite", error)
+
 
 def insert_varible_into_table4(name):
     try:
@@ -141,10 +153,12 @@ def insert_varible_into_table4(name):
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite", error)
 
+
 @bot.message_handler(commands=['help'])
 def main(message):
     bot.send_message(message.chat.id, 'Чат-бот будет предоставлять пользователям возможность создавать планы на день,'
                                       'устанавливать напоминания')
+
 
 @bot.message_handler(content_types=['text'])
 def info(message):
@@ -161,7 +175,23 @@ def info(message):
         key_month = types.InlineKeyboardButton(text='Месяц', callback_data='month')
         keyboard.add(key_month)
         bot.send_message(message.from_user.id, 'На какой срок вы ставите цели?', reply_markup=keyboard)
-    elif message.text == 'Планы':
+    elif message.text == 'Удалить планы':
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        cursor.execute("""DELETE from plans""")
+        sqlite_connection.commit()
+        cursor.close()
+        bot.send_message(message.chat.id, 'Планы удалены. Можете писать новые.')
+    elif message.text == 'Вывести планы':
+        keyboard = types.InlineKeyboardMarkup()
+        key_d11 = types.InlineKeyboardButton(text=current_date1, callback_data='otvet11')
+        keyboard.add(key_d11)
+        key_d22 = types.InlineKeyboardButton(text=current_date2, callback_data='otvet22')
+        keyboard.add(key_d22)
+        key_d33 = types.InlineKeyboardButton(text=current_date3, callback_data='otvet33')
+        keyboard.add(key_d33)
+        bot.send_message(message.from_user.id, 'Выберите нужный день', reply_markup=keyboard)
+    elif message.text == 'Написать планы':
         keyboard = types.InlineKeyboardMarkup()
         key_d1 = types.InlineKeyboardButton(text=current_date1, callback_data='otvet1')
         keyboard.add(key_d1)
@@ -206,6 +236,47 @@ def date_clicked(call):
         bot.send_message(call.message.chat.id, 'Введите планы:')
         bot.register_next_step_handler(call.message, user_pass2)
 
+
+@bot.callback_query_handler(func=lambda call: call.data in ['otvet11', 'otvet22', 'otvet33'])
+def date_clicked(call):
+    if call.data == 'otvet11':
+        data = current_date1
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        cursor.execute("""SELECT text FROM plans
+                                    WHERE data = ?""", (data,))
+        results = cursor.fetchall()
+        for i in results:
+            bot.send_message(call.message.chat.id, i[0])
+        sqlite_connection.commit()
+        cursor.close()
+    elif call.data == 'otvet22':
+        data = current_date3
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        cursor.execute("""SELECT text FROM plans
+                                            WHERE data = ?""", (data,))
+        results = cursor.fetchall()
+        for i in results:
+            bot.send_message(call.message.chat.id, i[0])
+        sqlite_connection.commit()
+        cursor.close()
+    elif call.data == 'otvet33':
+        data = current_date2
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        cursor.execute("""SELECT text FROM plans
+                                            WHERE data = ?""", (data,))
+        results = cursor.fetchall()
+        for i in results:
+            bot.send_message(call.message.chat.id, i[0])
+        sqlite_connection.commit()
+        cursor.close()
+
+
 @bot.callback_query_handler(func=lambda call: call.data in ['year', 'six_months', 'month'])
 def date_clicked(call):
     if call.data == 'year':
@@ -231,7 +302,6 @@ def date_clicked(call):
         cursor.execute("""SELECT year FROM web1
                             WHERE year IS NOT NULL""")
         results = cursor.fetchall()
-        print(results)
         for i in results:
             bot.send_message(call.message.chat.id, i[0])
         sqlite_connection.commit()
@@ -243,7 +313,6 @@ def date_clicked(call):
         cursor.execute("""SELECT six_months FROM web1
                                     WHERE six_months IS NOT NULL""")
         results = cursor.fetchall()
-        print(results)
         for i in results:
             bot.send_message(call.message.chat.id, i[0])
         sqlite_connection.commit()
@@ -255,7 +324,6 @@ def date_clicked(call):
         cursor.execute("""SELECT month FROM web1
                         WHERE month IS NOT NULL""")
         results = cursor.fetchall()
-        print(results)
         for i in results:
             bot.send_message(call.message.chat.id, i[0])
         sqlite_connection.commit()
