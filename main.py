@@ -35,35 +35,43 @@ def start(m):
 
 def user_pass(m):
     password = m.text.strip()
-    insert_varible_into_table(password, '00', 'ghb', m)
+    insert_varible_into_table(password)
 
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton('Список', callback_data='users'))
+    markup.add(types.InlineKeyboardButton('Список', callback_user='users'))
+    bot.send_message(m.chat.id, 'Пользователь зарегестрирован! Теперь вы можете написать планы/цели', reply_markup=markup)
 
 
-def insert_varible_into_table(name, date, call, m):
+@bot.callback_query_handler(func=lambda call: call.data in ['users'])
+def user(call):
+    if call.data == 'users':
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        #res = cursor.execute("""SELECT DISTINCT name FROM plans""")
+        cursor.execute("SELECT name FROM plans")
+        rows = cursor.fetchall()
+        user_list = '\n'.join([row[0] for row in rows])
+        bot.send_message(call.message.chat.id, text=user_list)
+
+
+def insert_varible_into_table(name):
     try:
         sqlite_connection = sqlite3.connect('web.sql')
         cursor = sqlite_connection.cursor()
         print("Подключен к SQLite")
-
-
         cursor.execute("""INSERT INTO plans
-                                             (name, data, text)
-                                             VALUES (?, ?, ?)""", (name, date, call))
+                                             (name)
+                                             VALUES (?)""", (name,))
         rec = cursor.fetchall()
         for i in rec:
             print(i)
         sqlite_connection.commit()
         print("Переменные Python успешно вставлены в таблицу sqlitedb_developers")
-        bot.send_message(m.chat.id, 'Пользователь зарегестрирован! Теперь вы можете написать планы/цели')
-
 
         cursor.close()
 
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite", error)
-        bot.send_message(m.chat.id, 'Этот пользователь уже до этого пользовался ботом. Продолжайте работу')
     finally:
         if sqlite_connection:
             sqlite_connection.close()
@@ -113,7 +121,6 @@ def date_clicked(call):
     elif call.data == 'otvet3':
         data = current_date3
         bot.delete_message(call.message.chat.id, call.message.message_id)
-    print(data)
 
 
 bot.polling()
