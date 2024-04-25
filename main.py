@@ -76,11 +76,11 @@ def info(message):
         bot.reply_to(message, f'ID: {message.from_user.id}')
     elif message.text == 'Написать цели':
         keyboard = types.InlineKeyboardMarkup()
-        key_year = types.InlineKeyboardButton(text='Год', callback_data='otvet')
+        key_year = types.InlineKeyboardButton(text='Год', callback_data='year')
         keyboard.add(key_year)
-        key_sixmonths = types.InlineKeyboardButton(text='Полгода', callback_data='otvet')
+        key_sixmonths = types.InlineKeyboardButton(text='Полгода', callback_data='six_months')
         keyboard.add(key_sixmonths)
-        key_month = types.InlineKeyboardButton(text='Месяц', callback_data='otvet')
+        key_month = types.InlineKeyboardButton(text='Месяц', callback_data='month')
         keyboard.add(key_month)
         bot.send_message(message.from_user.id, 'На какой срок вы ставите цели?', reply_markup=keyboard)
     elif message.text == 'Планы':
