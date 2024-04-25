@@ -33,10 +33,21 @@ def start(m):
     bot.send_message(m.chat.id, 'Введите логин')
     bot.register_next_step_handler(m, user_pass)
 
+
 def user_pass(m):
     password = m.text.strip()
     insert_varible_into_table(password)
-    bot.send_message(m.chat.id, 'Пользователь зарегестрирован! Теперь вы можете написать планы/цели')
+    bot.send_message(m.chat.id, 'Готово!')
+
+def user_pass1(m):
+    password = m.text.strip()
+    insert_varible_into_table_1(password)
+    bot.send_message(m.chat.id, 'Готово!')
+
+def user_pass2(m):
+    password = m.text.strip()
+    insert_varible_into_table_2(password)
+    bot.send_message(m.chat.id, 'Готово!')
 
 def user_purpose(m):
     purpose = m.text.strip()
@@ -45,16 +56,8 @@ def user_purpose(m):
 
 def user_purpose1(m):
     purpose = m.text.strip()
-    sqlite_connection = sqlite3.connect('web.sql')
-    cursor = sqlite_connection.cursor()
-    cursor.execute("SELECT year FROM web1")
-    rows = cursor.fetchall()
-    sqlite_connection.commit()
-    print(rows)
-    cursor.close()
-    if len(rows) == 0:
-        insert_varible_into_table3(purpose)
-        bot.send_message(m.chat.id, 'Готово!')
+    insert_varible_into_table3(purpose)
+    bot.send_message(m.chat.id, 'Готово!')
 
 def user_purpose2(m):
     purpose = m.text.strip()
@@ -65,81 +68,80 @@ def insert_varible_into_table(name):
     try:
         sqlite_connection = sqlite3.connect('web.sql')
         cursor = sqlite_connection.cursor()
-        print("Подключен к SQLite")
         cursor.execute("""INSERT INTO plans
-                                             (name)
-                                             VALUES (?)""", (name,))
+                                             (data, text)
+                                             VALUES (?, ?)""", (current_date, name))
         sqlite_connection.commit()
-        print("Переменные Python успешно вставлены в таблицу sqlitedb_developers")
-
         cursor.close()
 
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite", error)
-    finally:
-        if sqlite_connection:
-            sqlite_connection.close()
-            print("Соединение с SQLite закрыто")
+
+def insert_varible_into_table_1(name):
+    try:
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        cursor.execute("""INSERT INTO plans
+                                             (data, text)
+                                             VALUES (?, ?)""", (current_date + datetime.timedelta(days=2), name))
+        sqlite_connection.commit()
+        cursor.close()
+
+    except sqlite3.Error as error:
+        print("Ошибка при работе с SQLite", error)
+
+def insert_varible_into_table_2(name):
+    try:
+        sqlite_connection = sqlite3.connect('web.sql')
+        cursor = sqlite_connection.cursor()
+        cursor.execute("""INSERT INTO plans
+                                             (data, text)
+                                             VALUES (?, ?)""", (current_date + datetime.timedelta(days=1), name))
+        sqlite_connection.commit()
+        cursor.close()
+
+    except sqlite3.Error as error:
+        print("Ошибка при работе с SQLite", error)
+
 
 def insert_varible_into_table2(name):
     try:
         sqlite_connection = sqlite3.connect('web.sql')
         cursor = sqlite_connection.cursor()
-        print("Подключен к SQLite")
         cursor.execute("""INSERT INTO web1
                                              (year)
                                              VALUES (?)""", (name,))
         sqlite_connection.commit()
-        print("Переменные Python успешно вставлены в таблицу sqlitedb_developers")
-
         cursor.close()
 
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite", error)
-    finally:
-        if sqlite_connection:
-            sqlite_connection.close()
-            print("Соединение с SQLite закрыто")
 
 def insert_varible_into_table3(name):
     try:
         sqlite_connection = sqlite3.connect('web.sql')
         cursor = sqlite_connection.cursor()
-        print("Подключен к SQLite")
         cursor.execute("""INSERT INTO web1
                                              (six_months)
                                              VALUES (?)""", (name,))
         sqlite_connection.commit()
-        print("Переменные Python успешно вставлены в таблицу sqlitedb_developers")
-
         cursor.close()
 
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite", error)
-    finally:
-        if sqlite_connection:
-            sqlite_connection.close()
-            print("Соединение с SQLite закрыто")
 
 def insert_varible_into_table4(name):
     try:
         sqlite_connection = sqlite3.connect('web.sql')
         cursor = sqlite_connection.cursor()
-        print("Подключен к SQLite")
         cursor.execute("""INSERT INTO web1
                                              (month)
                                              VALUES (?)""", (name,))
         sqlite_connection.commit()
-        print("Переменные Python успешно вставлены в таблицу sqlitedb_developers")
-
         cursor.close()
 
     except sqlite3.Error as error:
         print("Ошибка при работе с SQLite", error)
-    finally:
-        if sqlite_connection:
-            sqlite_connection.close()
-            print("Соединение с SQLite закрыто")
 
 @bot.message_handler(commands=['help'])
 def main(message):
@@ -177,13 +179,18 @@ def date_clicked(call):
     if call.data == 'otvet1':
         data = current_date1
         bot.delete_message(call.message.chat.id, call.message.message_id)
-        #bot.register_next_step_handler(data, user)
+        bot.send_message(call.message.chat.id, 'Введите планы:')
+        bot.register_next_step_handler(call.message, user_pass)
     elif call.data == 'otvet2':
         data = current_date2
         bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.send_message(call.message.chat.id, 'Введите планы:')
+        bot.register_next_step_handler(call.message, user_pass1)
     elif call.data == 'otvet3':
         data = current_date3
         bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.send_message(call.message.chat.id, 'Введите планы:')
+        bot.register_next_step_handler(call.message, user_pass2)
 
 @bot.callback_query_handler(func=lambda call: call.data in ['year', 'six_months', 'month'])
 def date_clicked(call):
