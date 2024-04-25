@@ -36,22 +36,7 @@ def start(m):
 def user_pass(m):
     password = m.text.strip()
     insert_varible_into_table(password)
-
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton('Список', callback_user='users'))
-    bot.send_message(m.chat.id, 'Пользователь зарегестрирован! Теперь вы можете написать планы/цели', reply_markup=markup)
-
-
-@bot.callback_query_handler(func=lambda call: call.data in ['users'])
-def user(call):
-    if call.data == 'users':
-        sqlite_connection = sqlite3.connect('web.sql')
-        cursor = sqlite_connection.cursor()
-        #res = cursor.execute("""SELECT DISTINCT name FROM plans""")
-        cursor.execute("SELECT name FROM plans")
-        rows = cursor.fetchall()
-        user_list = '\n'.join([row[0] for row in rows])
-        bot.send_message(call.message.chat.id, text=user_list)
+    bot.send_message(m.chat.id, 'Пользователь зарегестрирован! Теперь вы можете написать планы/цели')
 
 
 def insert_varible_into_table(name):
@@ -76,7 +61,6 @@ def insert_varible_into_table(name):
         if sqlite_connection:
             sqlite_connection.close()
             print("Соединение с SQLite закрыто")
-
 
 
 @bot.message_handler(commands=['help'])
@@ -115,6 +99,7 @@ def date_clicked(call):
     if call.data == 'otvet1':
         data = current_date1
         bot.delete_message(call.message.chat.id, call.message.message_id)
+        #bot.register_next_step_handler(data, user)
     elif call.data == 'otvet2':
         data = current_date2
         bot.delete_message(call.message.chat.id, call.message.message_id)
