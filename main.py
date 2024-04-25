@@ -107,5 +107,19 @@ def date_clicked(call):
         data = current_date3
         bot.delete_message(call.message.chat.id, call.message.message_id)
 
+@bot.callback_query_handler(func=lambda call: call.data in ['year', 'six_months', 'month'])
+def date_clicked(call):
+    if call.data == 'year':
+        data = current_date1
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.send_message(call.message.chat.id,'Введите цель:')
+    elif call.data == 'six_months':
+        data = current_date2
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.send_message(call.message.chat.id, 'Введите цель:')
+    elif call.data == 'month':
+        data = current_date3
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.send_message(call.message.chat.id, 'Введите цель:')
 
 bot.polling()
